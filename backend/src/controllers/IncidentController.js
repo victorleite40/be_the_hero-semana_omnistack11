@@ -1,6 +1,29 @@
 const connection = require('../database/connection');
 
 module.exports = {
+
+    async index(req, res) {
+        const { page = 1 } = req.query;
+
+        const [count] = await connection('incidents').count();
+
+        const incidents = await connection('incidents')
+            .join('ongs', 'ongs.id', '=', 'incidents.ong_id')
+            .limit(5)           // limita a apenas 5 registros
+            .offset((page-1)*5) // pula 5 registros por página
+            .select([
+                'incidents.*', 
+                'ongs.name', 
+                'ongs.email', 
+                'ongs.whatsapp', 
+                'ongs.city', 
+                'ongs.uf'
+            ]);
+
+        res.header('X-Total-Count', count['count(*)']);
+        return res.json(incidents);
+    },
+
     async create(req, res) {
         const {title, description, value} = req.body;
         
@@ -14,12 +37,6 @@ module.exports = {
         });
 
         return res.json({ id });
-    },
-
-    async index(req, res) {
-        const incidents = await connection('incidents').select('*');
-
-        return res.json(incidents);
     },
 
     async destroy(req, res) {
