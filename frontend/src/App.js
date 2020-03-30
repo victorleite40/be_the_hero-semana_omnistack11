@@ -1,9 +1,9 @@
 import React from 'react';
+import './App.css';
+import Logon from './pages/Logon';
 
-function App() {
+export default function App() {
   return (
-    <h1>Hello World</h1>
+    <Logon />
   )
 }
-
-export default App;
